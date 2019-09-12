@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="input-field">
+            <input class="name-input" type="text" placeholder="name">
+        </div>
+        <div class="input-field">
+            <input class="price-input" type="number" placeholder="price">
+        </div>
+        <div class="input-field">
+            <textarea class="description-input" placeholder="description"></textarea>
+        </div>
+        <div class="input-field">
+            <select class="category-select"></select>
+            <label>Category</label>
+        </div>
+        <div class="input-field">
+            <input class="file-select" type="file">
+        </div>
+        <div>
+            <button class="create-btn btn waves-effect waves-light">Create</button>
+        </div>
+    </div>
+
+    <script>
+        const URL = 'http://localhost:8080';
+        const $nameInput = $('.name-input');
+        const $priceInput = $('.price-input');
+        const $fileSelect = $('.file-select');
+        const $descriptionInput = $('.description-input');
+        const $categorySelect = $('.category-select');
+
+        const getBase64FromFile = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        };
+
+        const appendCategoryToSelect = (category) => {
+            $categorySelect.append(`<option value="${category.id}">${category.name}</option>`)
+        };
+
+        const appendCategoriesToSelect = (categories) => {
+            for (const category of categories) {
+                appendCategoryToSelect(category);
+            }
+        };
+
+        const activateSelect = (categories) => {
+            appendCategoriesToSelect(categories);
+            $('select').formSelect();
+        };
+
+        const sendCreateRequest = () => {
+            // for (const file of $fileSelect[0].files) {
+            //      getBase64FromFile(file).then(....){
+            //    }
+            // }
+                                //jQuery object - [0] -> to get js object -> get all files - [0] ->get first one
+            const request = {
+                name: $nameInput.val(),
+                price: $priceInput.val(),
+                description: $descriptionInput.val(),
+                categoryId: $categorySelect.val()
+            };
+            getBase64FromFile($fileSelect[0].files[0])
+                .then(data => request.image = data)  //if image exist -> set it
+                .catch(() => request.image = null) // if no image - set image to null
+                .finally(() => { //send request after then or catch
+                    $.ajax({
+                        url: `${URL}/product`,
+                        type: 'post',
+                        contentType: 'application/json',
+                        data: JSON.stringify(request),
+                        success: console.log('product', request, 'created'),
+                        error: console.log
+                    })
+                })
+
+        };
+
+        $(document).ready(function(){
+
+            $.ajax({
+                url: `${URL}/category`,
+                type: 'get',
+                success: activateSelect,
+                error: console.log
+            });
+
+            $('.create-btn').click(sendCreateRequest);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        .valid {
+            background: rgba(0, 255, 0, .5);
+        }
+        .not-valid {
+            background: rgba(255, 0, 0, .5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container"></div>
+
+<a>LINK</a>
+
+<div class="form-container">
+    <input id="phone-number" type="text" placeholder="Phone number">
+    <button id="submit-btn">Submit</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script>
+    const $container = $('.container');
+    const $phoneNumber = $('#phone-number');
+    const $submitBtn = $('#submit-btn');
+
+    $phoneNumber.keyup(e => {
+        const val = $phoneNumber.val();
+
+        if (val.match(/\b0\d{9}\b/)) {
+            $phoneNumber.removeClass('not-valid');
+            $phoneNumber.addClass('valid');
+
+        } else if (val.length > 0) {
+            $phoneNumber.removeClass('valid');
+            $phoneNumber.addClass('not-valid');
+        } else {
+            $phoneNumber.removeClass('not-valid');
+            $phoneNumber.removeClass('valid');
+        }
+    });
+
+    $submitBtn.click(e => {
+        // if ($phoneNumber.val().match(/\b0\d{9}\b/)) {
+        //     $container.append(`<p>${$phoneNumber.val()}</p>`);
+        //     $phoneNumber.removeClass('valid');
+        //     $phoneNumber.val('');
+        // } else {
+        //     alert('number not valid!');
+        // }
+
+        //attr
+        $('a').attr('href', $phoneNumber.val());
+    });
+
+
+    // //HTML
+    // console.log($container.html());//get
+    // $container.html('<p>HELLO WORLD</p>');//set
+    //
+    // //CSS
+    // $container.css('backgroundColor', 'red');//set
+    // console.log($container.css('backgroundColor'));//set
+    //
+    // $container.click(e => {
+    //     $(e.currentTarget).slideUp();
+    // });
+</script>
+</body>
+</html>

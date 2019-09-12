@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>user</title>
+</head>
+<body>
+<!--<div class="create-container" style="display: none">-->
+<!--    <input type="text" id="username-input">-->
+<!--    <input type="text" id="password-input">-->
+<!--    <button id="send-btn">SEND</button>-->
+<!--    <button id="clear-btn">CLEAR</button>-->
+<!--    <div class="hint"></div>-->
+<!--</div>-->
+
+<table>
+    <thead>
+    <tr class="td-style">
+        <td>ID</td>
+        <td>username</td>
+        <td>password</td>
+        <td>Actions <button id="open-create-form" >Create</button></td>
+    </tr>
+<!--    <tr>-->
+<!--        <td>ID</td>-->
+<!--        <td>username</td>-->
+<!--        <td>password</td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--        <td>ID</td>-->
+<!--        <td>username</td>-->
+<!--        <td>password</td>-->
+<!--    </tr>-->
+    </thead>
+    <tbody class="users"></tbody>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<!--<script src="http://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>-->
+<script>
+    const HOST = 'http://localhost:8080';
+
+    const $table = $('.users');
+    // const $usernameInput = $('#username-input');
+    // const $passwordInput = $('#password-input');
+
+    // const $sendBtn = $('#send-btn');
+    // const $createContainer = $('.create-container');
+
+    const appendUser = (user) => {
+        $table.append(`
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.username}</td>
+                // <td>${user.password}</td>
+                <td><button>DELETE</button><button>UPDATE</button></td>
+                // <td>
+                //     <button data-id="${user.id}" class="delete-btn btn">DELETE</button>
+                //     <button data-id="${user.id}" class="update-btn btn">UPDATE</button>
+                // </td>
+            </tr>
+        `)
+    };
+    const appendUser = users => {
+        for (const user of users) {
+            appendUser(user);
+        }
+    };
+
+</script>
+</body>
+</html>

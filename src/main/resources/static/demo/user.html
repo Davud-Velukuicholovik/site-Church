@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>user</title>
+</head>
+<body class="users">
+<div class="create-container" style="display: none">
+    <input type="text" id="username-input">
+    <input type="text" id="password-input">
+    <button id="send-btn">SEND</button>
+    <button id="clear-btn">CLEAR</button>
+    <div class="hint"></div>
+</div>
+
+<table>
+    <thead>
+    <tr class="users">
+        <td>ID</td>
+        <td>username</td>
+        <td>password</td>
+        <td>Actions
+            <button id="open-create-form">Create</button>
+        </td>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script>
+    const HOST = 'http://localhost:8080';
+    const $table = $('.users');
+    const $usernameInput = $('#username-input');
+    const $passwordInput = $('#password-input');
+
+    const $sendBtn = $('#send-btn');
+    const $createContainer = $('.create-container');
+
+    const appendUseres = (user) => {
+        $table.append(`
+              <tr>
+             <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.password}</td>
+            <td><button>DELETE</button><button>UPDATE</button></td>
+        </tr>
+            `)
+    };
+    const appendUsers = users => {
+            for (const user of users) {
+                appendUseres(user);
+            }
+        };
+const getUsers = _ => {
+    $.ajax({
+        url: `${HOST}/user`,
+        type: 'GET',
+        success: res => {
+            console.log(res);
+            $table.html('');
+            appendUsers(res);
+        },
+        error: err => {
+            console.log(err);
+            alert('Something went wrong')
+        }
+    });
+};
+$(`#open-create-form`).click(e => {
+    $createContainer.slideToggle();
+});
+
+
+
+    // const deleteRequest = id => {
+    //     $.ajax({
+    //         url:  `${HOST}/user?id=${id}`,
+    //         type: 'DELETE',
+    //         success: res => {
+    //             getUser();
+    //         },
+    //         error: err => {
+    //             console.log(err)
+    //             alert('Something went wrong')
+    //         }
+    //     });
+    // };
+
+    // const onClickDeleteBtn = _ => {
+    //     $('.delete-btn').click(e => {
+    //         const id = e.target.getAttribute('data-id');
+    //         deleteRequest(id);
+    //     })
+    // };
+
+    // const onClickUpdateBtn = _ => {
+    //     $('.update-btn').click(e => {
+    //         $createContainer.slideDown();
+    //         const id = e.target.getAttribute('data-id');
+    //         initUpdateFrom(id);
+    //     })
+    // };
+
+    // const initUpdateFrom = (id) => {
+    //     $.ajax({
+    //         url:  `${HOST}/user/one/${id}`,
+    //         type: 'GET',
+    //         success: res => {
+    //             $nameInput.val(res.username);
+    //             $nameInput.val(res.password);
+    //             $sendBtn.attr('data-id', id);
+    //         },
+    //         error: err => {
+    //             console.log(err)
+    //             alert('Something went wrong')
+    //         }
+    //     });
+    // };
+    //
+
+    //
+    // const getUser = _ => {
+    //     $.ajax({
+    //         url:  `${HOST}/user`,
+    //         type: 'GET',
+    //     success: res => {
+    //         console.log(res);
+    //         $table.html('');
+    //         appendUser(res);
+    //         onClickDeleteBtn();
+    //         onClickUpdateBtn();
+    //     },
+    //     error: err => {
+    //         console.log(err)
+    //         alert('Something went wrong')
+    //     }
+    // });
+    // };
+
+    $('#open-create-form').click(e => {
+        const request = {
+            username: $usernameInput.val(),
+            password: $passwordInput.val()
+        }
+        $.ajax({
+            url: `${HOST}/user`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(request),
+            success: res => {
+                getUsers();
+            },
+            error: err => {
+                console.log(err);
+                alert('Something went wrong')
+            }
+        });
+        // $createContainer.slideToggle();
+    });
+
+    // $sendBtn.click(e => {
+    //     const request = {
+    //         contentType: 'application/json',
+    //         data: JSON.stringify({
+    //             username: $usernameInput.val(),
+    //             password: $passwordInput.val()
+    //
+    //         }),
+    //         success: res => {
+    //             clearForm();
+    //             getUser();
+    //         },
+    //         error: err => {
+    //             console.log(err);
+    //             alert('Something went wrong')
+    //         }
+    //     };
+
+    //     const id = $sendBtn.attr('data-id');
+    //     if (!id) {
+    //         $.ajax({
+    //             ...request,
+    //             url:  `${HOST}/user`,
+    //             type: 'POST'
+    //         });
+    //     } else {
+    //         $.ajax({
+    //             ...request,
+    //             url:  `${HOST}/user?id=${id}`,
+    //             type: 'PUT',
+    //         });
+    //     }
+    // });
+
+    // const clearForm = _ => {
+    //     $usernameInput.val('');
+    //     $passwordInput.val('');
+    //
+    //     $sendBtn.attr('data-id', '');
+    // };
+    //
+    // $('#clear-btn').click(clearForm);
+
+    getUsers();
+</script>
+
+<!--<script>-->
+<!--    $('#username-input').keyup(e => {-->
+<!--        $.ajax({-->
+<!--            url: `${HOST}/user/byName?value=${e.target.value}`,-->
+<!--            type: 'get',-->
+<!--            success: res => {-->
+<!--                const $hint = $('.hint');-->
+<!--                $hint.html('');-->
+<!--                for (const user of res) {-->
+<!--                    $hint.append(`<p>${user.username}</p>`)-->
+<!--                }-->
+<!--            },-->
+<!--            error: err => {-->
+<!--                console.log(err);-->
+<!--                alert('Something went wrong')-->
+<!--            }-->
+<!--        })-->
+<!--    });-->
+<!--    $('#username-input').focusout(_ => {-->
+<!--        $('.hint').html('');-->
+<!--    })-->
+<!--</script>-->
+</body>
+</html>

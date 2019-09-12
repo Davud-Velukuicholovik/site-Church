@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>user</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body>
+<div id="create-category-modal" class="create-container modal" style="display: none">
+    <input class="inputBtn username-input" type="text" id="username-input"placeholder="username">
+    <input class="inputBtn password-input" type="text" id="password-input"placeholder="password">
+    <button class="btn" id="send-btn">SEND</button>
+    <button class="btn" id="clear-btn">CLEAR</button>
+<!--    <button class="btn" id="exit-btn">EXIT</button>-->
+    <div class="hint"></div>
+</div >
+<div class="modal-footer">
+    <button class="btn modal-trigger" id="open-create-form">Create user</button>
+</div>
+<table>
+    <thead>
+    <tr>
+        <td>ID</td>
+        <td>username</td>
+        <td>password</td>
+        <td>Actions
+
+        </td>
+    </tr>
+    </thead>
+    <tbody class="users"></tbody>
+</table>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script>
+    const HOST = 'http://localhost:8080';
+    const $table = $('.users');
+    const $usernameInput = $('#username-input');
+    const $passwordInput = $('#password-input');
+    const $clearBtn = $('#clear-btn');
+    // const $exitBtn = $('#exit-btn');
+    const $sendBtn = $('#send-btn');
+    const $createContainer = $('.create-container');
+    const $openCreateForm = $(`#open-create-form`);
+    const $modal = $('#create-category-modal');
+
+    const appendUseres = (user) => {
+        $table.append(`
+              <tr>
+             <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.password}</td>
+            <td><button value="${user.username} ${user.password}" class="delete-btn btn">DELETE</button>
+                <button value="${user.username} ${user.password}" class="update-btn btn">UPDATE</button></td>
+        </tr>
+            `)
+    };
+    const $deleteBtn = $('.delete-btn');
+    const $updateBtn = $('.update-btn');
+    const appendUsers = users => {
+            for (const user of users) {
+                appendUseres(user);
+            }
+        };
+const getUsers = _ => {
+    $.ajax({
+        url: `${HOST}/user`,
+        type: 'GET',
+        success: res => {
+            // console.log(res);
+            $table.html('');
+            appendUsers(res);
+            onClickDeleteBtn();
+            onClickUpdateBtn();
+        },
+        error: err => {
+            console.log(err);
+            alert('Something went wrong')
+        }
+    });
+};
+$openCreateForm.click(e => {
+    $createContainer.slideToggle();
+});
+
+
+    $sendBtn.click(e => {
+        const request = {
+            username: $usernameInput.val(),
+            password: $passwordInput.val()
+        };
+        $.ajax({
+            url: `${HOST}/user`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(request),
+            success: res => {
+                getUsers();
+                $usernameInput.val('');
+                $passwordInput.val('');
+            },
+            error: err => {
+                console.log(err);
+                alert('Something went wrong')
+            }
+        }); $createContainer.slideToggle();
+    });
+    const clearForm = _ => {
+        $usernameInput.val('');
+        $passwordInput.val('');
+        $sendBtn.attr('data-id', '');
+    };
+    $clearBtn.click(clearForm);
+
+     // $deleteBtn.click(e => {
+     //     let id = $(e.target).value();
+     //     $.ajax({
+     //         url: `${host}/category?id=` + id,
+     //         type: 'delete',
+     //         success: function() {
+     //             $(e.target.parentElement.parentElement).slideUp;
+     //             console.log('deleted users')
+     //         }
+     //     })
+     // });
+   const deleteRequest = id => {
+            $.ajax({
+                url:  `${HOST}/user?id=${id}`,
+                 type: 'DELETE',
+                success: res => {
+                    getUsers();
+                },
+                error: err => {
+                    console.log(err);
+                    alert('Something went wrong')
+                }
+            });
+        };
+    const onClickDeleteBtn = _ => {
+            $('.delete-btn').click(e => {
+                const id = e.target.getAttribute('data-id');
+                deleteRequest(id);
+            })
+        };
+
+    const onClickUpdateBtn = _ => {
+        $('.update-btn').click(e => {
+            $createContainer.slideDown();
+            const id = e.target.getAttribute('data-id');
+            initUpdateFrom(id);
+        })
+    };
+
+    const initUpdateFrom = (id) => {
+        $.ajax({
+            url:  `${HOST}/user/one/${id}`,
+            type: 'GET',
+            success: res => {
+                $usernameInput.val(res.username);
+                $passwordInput.val(res.password);
+                $sendBtn.attr('data-id', id);
+            },
+            error: err => {
+                console.log(err)
+                alert('Something went wrong')
+            }
+        });
+    };
+    getUsers();
+</script>
+</body>
+</html>

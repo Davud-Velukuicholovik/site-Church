@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+</head>
+<body>
+
+<div id="create-category-modal" class="modal">
+    <div class="modal-content">
+        <input data-id="" id="category-name-input" type="text" placeholder="name">
+    </div>
+    <div class="modal-footer">
+        <button class="btn" id="category-create-button">
+            Create
+        </button>
+    </div>
+</div>
+<button data-target="create-category-modal" class="btn modal-trigger">Create category</button>
+
+<input type="file">
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody id="categories">
+    <tr>
+        <td> + </td>
+        <td>
+            <input type="text" placeholder="name">
+        </td>
+        <td>
+            <button class="btn">OK</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<script>
+    let host = 'http://localhost:8080';
+
+    $(document).ready(function() {
+        let $modal = $('#create-category-modal');
+        let $categoryNameInput = $('#category-name-input');
+        $modal.modal({
+            onCloseStart: () => {
+                $categoryNameInput.val('');
+                $categoryNameInput.attr('data-id', '');
+            }
+        });
+
+        $('#category-create-button').click(() => {
+            if ($categoryNameInput.val().length < 3) {
+                return;
+            }
+            let categoryRequest = {
+                name: $categoryNameInput.val()
+            };
+
+            let id = $categoryNameInput.attr('data-id');
+
+            if (id) {
+                $.ajax({
+                    url: `${host}/category?id=${id}`,
+                    type: 'put',
+                    contentType: 'application/json',
+                    data: JSON.stringify(categoryRequest),
+                    success: function () {
+                        getCategories();
+                    },
+                    error: console.log
+                });
+            } else {
+                $.ajax({
+                    url: `${host}/category`,
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(categoryRequest),
+                    success: function () {
+                        getCategories();
+                    },
+                    error: console.log
+                });
+            }
+            $modal.modal('close');
+        });
+
+        let tableBody = $('#categories');
+        let appendCategoryToTable = (category) => {
+            tableBody.append(`
+            <tr>
+                <td>${category.id}</td>
+                <td class="category-name">${category.name}</td>
+                <td>
+                    <button data-id="${category.id}" class="delete-btn btn">Delete</button>
+                    <button data-id="${category.id}" class="update-btn btn">Update</button>
+                </td>
+            </tr>
+        `);
+        };
+        let actionOnDeleteButtons = () => {
+            $('.delete-btn').click((e) => {
+                let id = $(e.target).attr('data-id');
+                $.ajax({
+                    url: `${host}/category?id=${id}`,
+                    type: 'delete',
+                    success: () => {
+                        $(e.target).closest('tr').hide();
+                    }
+                })
+            })
+        };
+        let actionOnUpdateButtons = () => {
+            $('.update-btn').click((e) => {
+                let $btn = $(e.target);
+                let id = $btn.attr('data-id');
+
+                $categoryNameInput.val($btn.parent().siblings('.category-name').html())
+                $categoryNameInput.attr('data-id', id);
+                $modal.modal('open');
+            })
+        };
+        let getCategories = () => {
+            tableBody.html('');
+            $.ajax({
+                url: `${host}/category`,
+                type: 'get',
+                success: (response) => {
+                    for (let cat of response) {
+                        appendCategoryToTable(cat);
+                    }
+                    actionOnDeleteButtons();
+                    actionOnUpdateButtons();
+                }
+            });
+        };
+
+        getCategories();
+    });
+
+
+
+
+
+
+</script>
+</body>
+</html>

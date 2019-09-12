@@ -56,8 +56,7 @@ public class OrderService {
             order.setFinished(false);
             order.setPhoneNumber(request.getPhoneNumber());
             order.setAddress(request.getAddress());
-//            order.getAddress();
-//            order.getPhoneNumber();
+
         }
         //other fields
         return order;
